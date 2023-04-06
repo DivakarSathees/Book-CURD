@@ -82,4 +82,82 @@ catch(Exception ex)
 
         return RedirectToAction("Index");
     }
+
+
+    public ActionResult Edit(int id)
+    {
+    Book book = new Book();
+
+    using (SqlConnection connection = new SqlConnection(connectionString))
+    {
+        string query = "SELECT * FROM Book WHERE id = @id";
+
+        using (SqlCommand command = new SqlCommand(query, connection))
+        {
+            command.Parameters.AddWithValue("@id", id);
+
+            connection.Open();
+
+            SqlDataReader reader = command.ExecuteReader();
+
+            while (reader.Read())
+            {
+                book.id = Convert.ToInt32(reader["id"]);
+                book.Book_Name = reader["Book_Name"].ToString();
+                book.Author = reader["Author"].ToString();
+                book.No_of_pages = reader["No_of_pages"].ToString();
+                book.Price = reader["Price"].ToString();
+            }
+
+            reader.Close();
+        }
+    }
+
+    return View(book);
+}
+
+    [HttpPost]
+    public ActionResult Edit(Book book)
+    {
+        using (SqlConnection connection = new SqlConnection(connectionString))
+        {
+            string query = "UPDATE Book SET Book_Name = @Book_Name, Author = @Author, No_of_pages = @No_of_pages, Price = @Price WHERE id = @id";
+
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@id", book.id);
+                command.Parameters.AddWithValue("@Book_Name", book.Book_Name);
+                command.Parameters.AddWithValue("@Author", book.Author);
+                command.Parameters.AddWithValue("@No_of_pages", book.No_of_pages);
+                command.Parameters.AddWithValue("@Price", book.Price);
+
+                connection.Open();
+
+                command.ExecuteNonQuery();
+            }
+        }
+
+        return RedirectToAction("Index");
+    }
+
+    public ActionResult Delete(int id)
+    {
+    using (SqlConnection connection = new SqlConnection(connectionString))
+    {
+        string query = "DELETE FROM Book WHERE id = @id";
+
+        using (SqlCommand command = new SqlCommand(query, connection))
+        {
+            command.Parameters.AddWithValue("@id", id);
+
+            connection.Open();
+
+            command.ExecuteNonQuery();
+        }
+    }
+
+    return RedirectToAction("Index");
+    }
+
+
 }
